@@ -12,6 +12,8 @@ makeCacheMatrix <- function(x = matrix()) {
   inv <- NULL
   set <- function(y) {
     x <<- y
+    ## Since we are setting a new value, we need to invalidate the cached
+    ## inverse.
     inv <<- NULL
   }
   get <- function() x
@@ -22,16 +24,18 @@ makeCacheMatrix <- function(x = matrix()) {
        getinverse = getinverse)
 }
 
-
 ## cacheSolve returns the matrix inverse of the stored matrix in the given
 ## cacheMatrix.
 cacheSolve <- function(x, ...) {
-  ## Return a matrix that is the inverse of 'x'
+  ## First retrieve the cached inverse.
   inverse <- x$getinverse()
   if(!is.null(inverse)) {
+    ## If the cached inverse is not null, we can simply return it.
     message("getting cached data")
     return(inverse)
   }
+  ## Otherwise, we re-compute the inverse, and cache it by using the
+  ## setinverse method.
   data <- x$get()
   inverse <- solve(data, ...)
   x$setinverse(inverse)
